@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from typing import List
+from typing import List, Set
 
 INPUT_FILE = 'input.txt'
 
@@ -13,23 +13,35 @@ def get_footprint_cost(diagram: List[List[bool]], row: int, col: int) -> int:
     return cost
 
 
-def calculate_accessible(diagram: List[List[bool]]) -> int:
+def get_accessible(diagram: List[List[bool]]) -> Set[int]:
     accessible = set()
     for i, row in enumerate(diagram):
         for j, el in enumerate(row):
             if el and (get_footprint_cost(diagram, i, j) < 5):
                 accessible.add((i, j))
 
-    return len(accessible)
+    return accessible
 
 
 def main():
+    accessible_cnt = 0
     with open(INPUT_FILE, mode='r') as f:
         diagram = list()
         for row in f:
             diagram.append([True if x == "@" else False for x in row.rstrip()])
 
-        print(f"Part I: {calculate_accessible(diagram)}")
+        accessible = get_accessible(diagram)
+        accessible_cnt = len(accessible)
+        print(f"Part I: {accessible_cnt}")
+
+        while accessible:
+            for i, j in accessible:
+                diagram[i][j] = False
+
+            accessible = get_accessible(diagram)
+            accessible_cnt += len(accessible)
+
+        print(f"Part II: {accessible_cnt}")
 
 
 if __name__ == '__main__':
