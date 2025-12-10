@@ -8,7 +8,7 @@ def count_splits(start_idx: int, manifold: List[str]) -> int:
     beams = {start_idx}
     splits = 0
     for row in manifold:
-        splitters = {i for i, x in enumerate(row) if x == '^' }
+        splitters = {i for i, x in enumerate(row) if x == '^'}
         new_beams = set()
         for beam in beams:
             if beam in splitters:
@@ -25,11 +25,40 @@ def count_splits(start_idx: int, manifold: List[str]) -> int:
     return splits
 
 
+def count_paths(start_idx: int, manifold: List[str]) -> int:
+    beams = {start_idx: 1}
+    for row in manifold:
+        splitters = {i for i, x in enumerate(row) if x == '^'}
+        new_beams = dict()
+        for beam in beams:
+            if beam in splitters:
+                if beam > 0:
+                    if beam - 1 in new_beams:
+                        new_beams[beam - 1] += beams[beam]
+                    else:
+                        new_beams[beam - 1] = beams[beam]
+                if beam < len(row) - 1:
+                    if beam + 1 in new_beams:
+                        new_beams[beam + 1] += beams[beam]
+                    else:
+                        new_beams[beam + 1] = beams[beam]
+            else:
+                if beam in new_beams:
+                    new_beams[beam] += beams[beam]
+                else:
+                    new_beams[beam] = beams[beam]
+
+        beams = new_beams
+
+    return sum(beams.values())
+
+
 def main():
     with open(INPUT_FILE, mode='r') as f:
         start_idx = next(f).index('S')
         manifold = f.read().split('\n')
         print(f"Part I: {count_splits(start_idx, manifold)}")
+        print(f"Part II: {count_paths(start_idx, manifold)}")
 
 
 if __name__ == '__main__':
